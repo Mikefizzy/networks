@@ -80,7 +80,7 @@ class IRNN:
         self.optimizer = optimizerMethod.minimize(self.cost)
 
 class LSTM:
-    def __init__(self, arc, memory,dropout = 0, optimize_method = tf.train.AdamOptimizer(0.001/4), activation ='softmax', cost = 'cross_entropy', onehot = 0):
+    def __init__(self, arc, memory,dropout = 0, optimize_method = tf.train.AdamOptimizer(0.001), activation ='softmax', cost = 'cross_entropy', onehot = 0):
         self.arc = arc
         self.memory = memory
         self.lstmLayers = self.arc[1:-1] #the amount of units per stacked lstm layer
@@ -124,8 +124,6 @@ class LSTM:
             self.cost = tf.reduce_mean(-y*tf.log(self.out) - (1-y)*tf.log(1-self.out)) #cross entropy
         elif(cost =='mean_square'):
             self.cost = tf.reduce_mean(tf.pow(self.out-y,2))
-
-        self.cost = tf.reduce_mean(-y*tf.log(self.out) - (1-y)*tf.log(1-self.out))#tf.reduce_mean(tf.square((self.y - self.out)))
 
         correct_pred = tf.equal(tf.argmax(self.out,1), tf.argmax(y,1))
         self.accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))

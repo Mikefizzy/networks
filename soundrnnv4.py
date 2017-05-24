@@ -62,7 +62,7 @@ memory = 250
 nSplits = 300
 epochs = 100
 startIndex = 0
-minibatches = int(750)
+minibatches = int(1000)
 
 splitRatio = 1 + 1/minibatches
 net = IRNN(arc, memory, onehot = soundata.vocab)

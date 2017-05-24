@@ -24,7 +24,7 @@ train_x = x_data[:endpoint]
 train_y = y_data[:endpoint]
 val_x = x_data[endpoint:]
 val_y = y_data[endpoint:]
-net = LSTM([1,1000,1000,1], memory, activation = 'none', cost = 'mean_square')
+net = IRNN([1,500,500,1], memory, activation = 'none', cost = 'mean_square')
 with tf.Session() as sess:
 	costs = []
 	sess.run(tf.global_variables_initializer())
