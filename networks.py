@@ -80,17 +80,16 @@ class IRNN:
         self.optimizer = optimizerMethod.minimize(self.cost)
 
 class LSTM:
-
-    def __init__(self, arc, memory,vocab ,dropout = 0, optimize_method = tf.train.AdamOptimizer(0.001/4), activation ='softmax', cost = 'cross_entropy', onehot = 0):
+    def __init__(self, arc, memory,dropout = 0, optimize_method = tf.train.AdamOptimizer(0.001/4), activation ='softmax', cost = 'cross_entropy', onehot = 0):
         self.arc = arc
         self.memory = memory
         self.lstmLayers = self.arc[1:-1] #the amount of units per stacked lstm layer
 
         self.x = tf.placeholder(tf.float32, [None, self.memory, arc[0]])
-        self.y = tf.placeholder(tf.int32, [None, arc[-1]])
+        self.y = tf.placeholder(tf.float32, [None, arc[-1]])
         if(onehot>0):
             self.y = tf.placeholder(tf.int32, [None])
-            y = tf.one_hot(self.y, vocab)
+            y = tf.one_hot(self.y, arc[-1])
         else:
             y = self.y
         x = tf.unstack(self.x, axis = 1)
@@ -113,7 +112,18 @@ class LSTM:
         #out = tf.matmul((tf.nn.relu (tf.matmul(self.outputs[-1], self.W1) + self.B1)), self.W2) + self.B2
         out  = tf.matmul(self.outputs[-1], self.W2) + self.B2
         if(activation=='softmax'):
-            self.out = tf.exp(out)/tf.reduce_sum(tf.exp(out))
+            self.out = tf.nn.softmax(out)
+        elif(activation=='sigmoid'):
+            self.out = tf.sigmoid(out)
+        else:
+            self.out = out
+
+        if(onehot>0):
+            y = tf.cast(y, tf.float32)
+        if(cost=='cross_entropy'):
+            self.cost = tf.reduce_mean(-y*tf.log(self.out) - (1-y)*tf.log(1-self.out)) #cross entropy
+        elif(cost =='mean_square'):
+            self.cost = tf.reduce_mean(tf.pow(self.out-y,2))
 
         self.cost = tf.reduce_mean(-y*tf.log(self.out) - (1-y)*tf.log(1-self.out))#tf.reduce_mean(tf.square((self.y - self.out)))
 
